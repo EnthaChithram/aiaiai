@@ -49,7 +49,9 @@ def index():
         response.headers.add('Access-Control-Allow-Origin', '*')  # Allow all origins
         return response
 
-    return render_template('index.html', color=color_output)
+
+    # return render_template('index.html', color=color_output)
+    return jsonify({"color": color_output})  # Return only the color as a JSON response
 
 @app.route('/check', methods=['GET'])
 def check():
