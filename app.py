@@ -47,7 +47,7 @@ def index():
                 }
             ]
         )
-        color_output = completion.choices[0].message.content.strip()  # Get the output color
+        color_output = completion.choices[0].message.content.strip('. ')  # Get the output color and strip periods
 
         response = jsonify({"color": color_output})  # Return the color as a JSON response
         response.headers.add('Access-Control-Allow-Origin', '*')  # Allow all origins
