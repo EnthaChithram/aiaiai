@@ -6,34 +6,44 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize OpenAI client for OpenRouter
+api_key = os.getenv("OPENROUTER_API_KEY")
+
+# Check if API key exists
+if not api_key:
+    raise ValueError("Missing OpenRouter API key. Set OPENROUTER_API_KEY in your .env file.")
+
+# Initialize OpenAI client for OpenRouter
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key="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"
+    api_key=api_key  # Use the API key from the environment
 )
 
 # Capture user input
 user_input = input("Please enter a word: ")
 
 # Create a chat completion request with strict output instructions
-completion = client.chat.completions.create(
-    extra_headers={
-        "HTTP-Referer": "<YOUR_SITE_URL>",  # Optional. Replace with your site URL if needed.
-        "X-Title": "<YOUR_SITE_NAME>",      # Optional. Replace with your site name if needed.
-    },
-    model="mistralai/mistral-small-24b-instruct-2501:free",
-    messages=[
-        {
-            "role": "system",
-            "content": "only think for 10 seconds. you will be given a word as an input. your output should be the color associated with the word. example: sunset=orange. another example:surrender=white. another example:anger=red. your output should always be a color. only a color. Make sure to respond with the color only. If there are multiple colors associated with the word, you should respond with the first color in the list. If there is no color associated with the word, you should respond with 'no color associated with this word'."
-        },
-        {
-            "role": "user",
-            "content": user_input  # Use the captured user input
-        }
-    ]
-)
+try:
+    completion = client.chat.completions.create(
+        model="mistralai/mistral-small-24b-instruct-2501:free",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You will be given a word. Respond with the color associated with the word. "
+                    "Example: sunset=orange, surrender=white, anger=red. "
+                    "Respond only with the color name. If no color is associated, reply with 'no color associated with this word'."
+                )
+            },
+            {
+                "role": "user",
+                "content": user_input
+            }
+        ]
+    )
 
-# Print the last word of the message content
-last_word = completion.choices[0].message.content.strip().split()[-1]
+    # Extract the AI response
+    response = completion.choices[0].message.content.strip()
+    print(response)
 
-print(completion.choices[0].message.content)
+except Exception as e:
+    print(f"Error: {e}")

@@ -7,14 +7,21 @@ from flask_cors import CORS  # Import CORS
 # Load environment variables from .env
 load_dotenv()
 
+# Get API key from environment variable
+api_key = os.getenv("OPENROUTER_API_KEY")
+
+# Check if API key exists
+if not api_key:
+    raise ValueError("Missing OpenRouter API key. Set OPENROUTER_API_KEY in your .env file.")
+
 # Initialize OpenAI client for OpenRouter
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key="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"
+    api_key=api_key  # Use the API key from the environment
 )
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})  # Allow requests from your frontend
+CORS(app, resources={r"/*": {"origins": "*"}}) # Allow requests from your frontend
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -23,10 +30,7 @@ def index():
         data = request.get_json()  # Parse the incoming JSON data
         user_input = data['word']  # Get user input from the JSON body
         completion = client.chat.completions.create(
-            extra_headers={
-                "HTTP-Referer": "<YOUR_SITE_URL>",
-                "X-Title": "<YOUR_SITE_NAME>",
-            },
+            
             model="mistralai/mistral-small-24b-instruct-2501:free",
             messages=[
                 {
@@ -46,6 +50,11 @@ def index():
         return response
 
     return render_template('index.html', color=color_output)
+
+@app.route('/check', methods=['GET'])
+def check():
+    return "connected"
+
 
 if __name__ == '__main__':
     app.run(debug=True)
