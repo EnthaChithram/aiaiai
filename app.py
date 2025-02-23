@@ -12,7 +12,9 @@ api_key = os.getenv("OPENROUTER_API_KEY")
 
 # Check if API key exists
 if not api_key:
-    raise ValueError("Missing OpenRouter API key. Set OPENROUTER_API_KEY in your .env file.")
+    logging.error("⚠️ OPENROUTER_API_KEY is NOT set!")
+else:
+    logging.debug(f"✅ OPENROUTER_API_KEY is set: {api_key[:5]}*****")
 
 # Initialize OpenAI client for OpenRouter
 client = OpenAI(
@@ -35,7 +37,7 @@ def index():
             messages=[
                 {
                     "role": "system",
-                    "content": "only think for 10 seconds. you will be given a word as an input. your output should be the color associated with the word. example: sunset=orange. another example:surrender=white. another example:anger=red. your output should always be a color. only a color. Make sure to respond with the color only. If there are multiple colors associated with the word, you should respond with the first color in the list. If there is no color associated with the word, you should respond with 'no color associated with this word'."
+                    "content": "only think for 10 seconds. you will be given a word as an input. your output should be the color associated with the word. example: sunset=orange. another example:surrender=white. another example:anger=red. your output should always be a color. only a color. Make sure to respond with the color only. If there are multiple colors associated with the word, you should respond with the most logical color. If there is no color associated with the word, you should respond with 'no color associated with this word'."
                 },
                 {
                     "role": "user",
