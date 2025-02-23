@@ -3,6 +3,8 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS  # Import CORS
+import logging
+
 
 # Load environment variables from .env
 load_dotenv()
