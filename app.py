@@ -1,9 +1,13 @@
+import threading
+import time
 from flask import Flask, render_template, request, jsonify  # Import jsonify for sending JSON responses
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS  # Import CORS
 import logging
+
+import requests
 
 
 # Load environment variables from .env
@@ -62,5 +66,24 @@ def check():
     return "connected"
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+
+@app.route('/alive', methods=['GET', 'POST'])
+def alive():
+    return "alive"
+
+def ping_loop():
+    while True:
+        try:
+            requests.get("https://movie-server-sdjl.onrender.com/ping")
+            print("Ping sent to main server.")
+        except Exception as e:
+            print("Ping failed:", e)
+        time.sleep(600)  # 10 minutes
+
+if __name__ == "__main__":
+    # Start loop in separate thread
+    threading.Thread(target=ping_loop, daemon=True).start()
+    app.run()
+
+    
